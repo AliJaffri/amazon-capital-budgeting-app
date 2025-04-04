@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="Capital Budgeting Project Comparison Tool", layout="centered")
+st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
 
 st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, NPV, and Profitability Index (PI).")
