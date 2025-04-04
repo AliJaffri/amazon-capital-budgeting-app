@@ -4,7 +4,7 @@ from fpdf import FPDF
 import base64
 
 # ------------------ CONFIG ------------------
-st.set_page_config(page_title=" Capital Budgeting Techniques Projects Comparison Tool", layout="centered")
+st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
 st.image("mssu_logo.png", width=150)
 
 st.title("Project Comparison Tool")
@@ -126,11 +126,6 @@ ax.legend()
 st.pyplot(fig)
 
 # ------------------ PDF GENERATION ------------------
-def generate_full_pdf_with_logo_and_chart(...):
-    # Provided earlier: Same function including centered logo + chart embed
-    pass
-
-# Generate the full PDF
 from fpdf import FPDF
 logo_path = "mssu_logo.png"
 
