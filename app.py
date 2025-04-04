@@ -1,12 +1,11 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-import base64
 
 # ------------------ CONFIG ------------------
-st.set_page_config(page_title=" Capital Budgeting Techniques Projects Comparison Tool", layout="centered")
+st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
 st.image("mssu_logo.png", width=150)
 
-st.title("Capital Budgeting Techniques Projects Comparison Tool")
+st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
 
 # ------------------ INPUTS ------------------
@@ -61,7 +60,6 @@ st.write(f"**Project A**: {payback_a:.2f} years")
 st.write(f"**Project B**: {payback_b:.2f} years")
 
 st.subheader("Net Present Value (NPV)")
-
 st.markdown("**Project A – Present Value of Cash Flows:**")
 for i, pv in enumerate(pv_flows_a):
     st.write(f"Year {i+1}: ${pv:,.2f}")
@@ -82,8 +80,8 @@ st.write(f"**Project B**: {pi_b:.3f}")
 
 # ------------------ RECOMMENDATION ------------------
 st.subheader("Recommendation Summary")
-decision_reasons = []
 
+decision_reasons = []
 if payback_a < payback_b:
     decision_reasons.append("**Payback Period**: Project A recovers the investment faster.")
 else:
@@ -106,23 +104,28 @@ if npv_a > 0 or npv_b > 0:
         recommended = "Project B"
     else:
         recommended = "Both projects are financially viable."
-    st.success(f"✅ Based on the analysis, **{recommended} is the better investment.**")
-else:
-    st.warning("⚠️ Both projects have zero or negative NPV. Reconsider investing.")
 
+    st.markdown(
+        f"""
+        <div style='padding: 1em; border-radius: 10px; background-color: #e0f7fa;'>
+            <h4 style='color: #00796b;'>✅ Based on the analysis, <b>{recommended}</b> is the better investment.</h4>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        """
+        <div style='padding: 1em; border-radius: 10px; background-color: #fff3cd;'>
+            <h4 style='color: #856404;'>⚠️ Both projects have zero or negative NPV. Reconsider investing.</h4>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown("**Why?**")
 for reason in decision_reasons:
     st.markdown(f"- {reason}")
-
-# ------------------ CHART ------------------
-st.subheader("Present Value Chart")
-fig, ax = plt.subplots()
-years = [f"Year {i+1}" for i in range(max(len(pv_flows_a), len(pv_flows_b)))]
-ax.bar(years, pv_flows_a, label='Project A', alpha=0.6)
-ax.bar(years, pv_flows_b, label='Project B', alpha=0.6)
-ax.set_ylabel("Present Value ($)")
-ax.set_title("Year-wise Present Value of Cash Flows")
-ax.legend()
-st.pyplot(fig)
 
 st.markdown("---")
 st.markdown("*Developed for MSSU Capital Budgeting Analysis*")
