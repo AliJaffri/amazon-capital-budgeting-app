@@ -19,12 +19,12 @@ st.markdown(f"**Initial Investment:** ${initial_investment:,.2f}")
 # Project A
 st.subheader("Project A: Enter Annual Cash Flows")
 years_a = st.number_input("Number of Years (Project A)", min_value=1, max_value=10, value=4)
-cash_flows_a = [st.number_input(f"Year {i+1} Cash Flow (Project A)", key=f"a{i}", value=3000.00) for i in range(int(years_a))]
+cash_flows_a = [st.number_input(f"Year {i+1} Cash Flow (Project A)", key=f"a{i}", value=3250.00) for i in range(int(years_a))]
 
 # Project B
 st.subheader("Project B: Enter Annual Cash Flows")
 years_b = st.number_input("Number of Years (Project B)", min_value=1, max_value=10, value=4)
-default_b = [1000.00, 2000.00, 4000.00, 5000.00]
+default_b = [1500.00, 2500.00, 4000.00, 5250.00]
 cash_flows_b = [st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=default_b[i] if i < 4 else 0.00) for i in range(int(years_b))]
 
 # ------------------ CALCULATIONS ------------------
