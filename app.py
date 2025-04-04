@@ -3,31 +3,33 @@ import matplotlib.pyplot as plt
 from fpdf import FPDF
 import base64
 
-# --- Streamlit Page Setup ---
+# ------------------ CONFIG ------------------
 st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
-st.image("mssu_logo.png", width=150)  # Logo at top
+st.image("mssu_logo.png", width=150)
+
 st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
 
-# --- User Inputs ---
+# ------------------ INPUTS ------------------
 st.header("Project Setup")
 initial_investment = st.number_input("Initial Investment ($)", value=10000.00, step=500.00)
 discount_rate = st.slider("Discount Rate (%)", min_value=1, max_value=20, value=10)
 rate = discount_rate / 100
+
 st.markdown(f"**Initial Investment:** ${initial_investment:,.2f}")
 
-# Project A Inputs
+# Project A
 st.subheader("Project A: Enter Annual Cash Flows")
 years_a = st.number_input("Number of Years (Project A)", min_value=1, max_value=10, value=4)
 cash_flows_a = [st.number_input(f"Year {i+1} Cash Flow (Project A)", key=f"a{i}", value=3000.00) for i in range(int(years_a))]
 
-# Project B Inputs
+# Project B
 st.subheader("Project B: Enter Annual Cash Flows")
 years_b = st.number_input("Number of Years (Project B)", min_value=1, max_value=10, value=4)
 default_b = [1000.00, 2000.00, 4000.00, 5000.00]
 cash_flows_b = [st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=default_b[i] if i < 4 else 0.00) for i in range(int(years_b))]
 
-# --- Helper Functions ---
+# ------------------ CALCULATIONS ------------------
 def payback_period(investment, flows):
     cum_sum = 0
     for i, cash in enumerate(flows):
@@ -41,7 +43,6 @@ def payback_period(investment, flows):
 def present_value_list(flows, rate):
     return [round(cf / (1 + rate) ** (i + 1), 2) for i, cf in enumerate(flows)]
 
-# --- Calculations ---
 pv_flows_a = present_value_list(cash_flows_a, rate)
 pv_flows_b = present_value_list(cash_flows_b, rate)
 pv_total_a = sum(pv_flows_a)
@@ -53,7 +54,7 @@ pi_b = round(pv_total_b / initial_investment, 3)
 payback_a = payback_period(initial_investment, cash_flows_a)
 payback_b = payback_period(initial_investment, cash_flows_b)
 
-# --- Output Section ---
+# ------------------ OUTPUTS ------------------
 st.header("Results")
 
 st.subheader("Payback Period")
@@ -61,6 +62,7 @@ st.write(f"**Project A**: {payback_a:.2f} years")
 st.write(f"**Project B**: {payback_b:.2f} years")
 
 st.subheader("Net Present Value (NPV)")
+
 st.markdown("**Project A – Present Value of Cash Flows:**")
 for i, pv in enumerate(pv_flows_a):
     st.write(f"Year {i+1}: ${pv:,.2f}")
@@ -79,7 +81,7 @@ st.subheader("Profitability Index (PI)")
 st.write(f"**Project A**: {pi_a:.3f}")
 st.write(f"**Project B**: {pi_b:.3f}")
 
-# --- Recommendation Logic ---
+# ------------------ RECOMMENDATION ------------------
 st.subheader("Recommendation Summary")
 decision_reasons = []
 
@@ -112,7 +114,7 @@ else:
 for reason in decision_reasons:
     st.markdown(f"- {reason}")
 
-# --- Bar Chart Visualization ---
+# ------------------ CHART ------------------
 st.subheader("Present Value Chart")
 fig, ax = plt.subplots()
 years = [f"Year {i+1}" for i in range(max(len(pv_flows_a), len(pv_flows_b)))]
@@ -123,12 +125,37 @@ ax.set_title("Year-wise Present Value of Cash Flows")
 ax.legend()
 st.pyplot(fig)
 
-# --- PDF Report Generation ---
-def create_pdf():
+# ------------------ PDF GENERATION ------------------
+def generate_full_pdf_with_logo_and_chart(...):
+    # Provided earlier: Same function including centered logo + chart embed
+    pass
+
+# Generate the full PDF
+from fpdf import FPDF
+logo_path = "mssu_logo.png"
+
+def generate_pdf():
+    chart_path = "pv_chart.png"
+    fig, ax = plt.subplots()
+    years = [f"Year {i+1}" for i in range(max(len(pv_flows_a), len(pv_flows_b)))]
+    ax.bar(years, pv_flows_a, label='Project A', alpha=0.6)
+    ax.bar(years, pv_flows_b, label='Project B', alpha=0.6)
+    ax.set_ylabel("Present Value ($)")
+    ax.set_title("Year-wise Present Value of Cash Flows")
+    ax.legend()
+    fig.savefig(chart_path)
+    plt.close(fig)
+
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
 
+    logo_width = 50
+    page_width = 210
+    x_centered = (page_width - logo_width) / 2
+    pdf.image(logo_path, x=x_centered, y=10, w=logo_width)
+    pdf.ln(30)
+
+    pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, txt="Capital Budgeting Project Comparison", ln=True, align='C')
     pdf.ln(10)
 
@@ -160,12 +187,16 @@ def create_pdf():
     for reason in decision_reasons:
         pdf.multi_cell(0, 10, txt=reason.replace("**", ""))
 
+    pdf.ln(5)
+    pdf.cell(200, 10, txt="Present Value Chart:", ln=True)
+    pdf.image(chart_path, x=20, w=170)
+
     return pdf.output(dest='S').encode('latin1')
 
-st.markdown("### 📄 Download Report")
-pdf_data = create_pdf()
+# PDF download link
+pdf_data = generate_pdf()
 b64 = base64.b64encode(pdf_data).decode()
-href = f'<a href="data:application/octet-stream;base64,{b64}" download="Project_Comparison_Report.pdf">📥 Click here to download the PDF report</a>'
+href = f'<a href="data:application/octet-stream;base64,{b64}" download="Project_Comparison_Report.pdf">\ud83d\udcc5 Download Full PDF Report</a>'
 st.markdown(href, unsafe_allow_html=True)
 
 st.markdown("---")
