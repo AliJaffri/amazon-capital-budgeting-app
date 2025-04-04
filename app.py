@@ -1,11 +1,16 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from fpdf import FPDF
-import base64
 
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
-st.image("mssu_logo.png", width=150)
+st.markdown(
+    """
+    <div style='text-align: center;'>
+        <img src='mssu_logo.png' width='150'>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
@@ -124,75 +129,6 @@ ax.set_ylabel("Present Value ($)")
 ax.set_title("Year-wise Present Value of Cash Flows")
 ax.legend()
 st.pyplot(fig)
-
-# ------------------ PDF GENERATION ------------------
-from fpdf import FPDF
-logo_path = "mssu_logo.png"
-
-def generate_pdf():
-    chart_path = "pv_chart.png"
-    fig, ax = plt.subplots()
-    years = [f"Year {i+1}" for i in range(max(len(pv_flows_a), len(pv_flows_b)))]
-    ax.bar(years, pv_flows_a, label='Project A', alpha=0.6)
-    ax.bar(years, pv_flows_b, label='Project B', alpha=0.6)
-    ax.set_ylabel("Present Value ($)")
-    ax.set_title("Year-wise Present Value of Cash Flows")
-    ax.legend()
-    fig.savefig(chart_path)
-    plt.close(fig)
-
-    pdf = FPDF()
-    pdf.add_page()
-
-    logo_width = 50
-    page_width = 210
-    x_centered = (page_width - logo_width) / 2
-    pdf.image(logo_path, x=x_centered, y=10, w=logo_width)
-    pdf.ln(30)
-
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Capital Budgeting Project Comparison", ln=True, align='C')
-    pdf.ln(10)
-
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(200, 10, txt="Project A Cash Flows:", ln=True)
-    pdf.set_font("Arial", size=12)
-    for i, cash in enumerate(cash_flows_a):
-        pdf.cell(200, 10, txt=f"Year {i+1}: ${cash:,.2f}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", style="B", size=12)
-    pdf.cell(200, 10, txt="Project B Cash Flows:", ln=True)
-    pdf.set_font("Arial", size=12)
-    for i, cash in enumerate(cash_flows_b):
-        pdf.cell(200, 10, txt=f"Year {i+1}: ${cash:,.2f}", ln=True)
-
-    pdf.ln(10)
-    pdf.cell(200, 10, txt=f"NPV (A): ${npv_a:,.2f}", ln=True)
-    pdf.cell(200, 10, txt=f"NPV (B): ${npv_b:,.2f}", ln=True)
-    pdf.cell(200, 10, txt=f"PI (A): {pi_a:.3f}", ln=True)
-    pdf.cell(200, 10, txt=f"PI (B): {pi_b:.3f}", ln=True)
-    pdf.cell(200, 10, txt=f"Payback (A): {payback_a:.2f} years", ln=True)
-    pdf.cell(200, 10, txt=f"Payback (B): {payback_b:.2f} years", ln=True)
-
-    pdf.ln(10)
-    pdf.set_font("Arial", style='B', size=12)
-    pdf.cell(200, 10, txt=f"Recommended: {recommended}", ln=True)
-    pdf.set_font("Arial", size=12)
-    for reason in decision_reasons:
-        pdf.multi_cell(0, 10, txt=reason.replace("**", ""))
-
-    pdf.ln(5)
-    pdf.cell(200, 10, txt="Present Value Chart:", ln=True)
-    pdf.image(chart_path, x=20, w=170)
-
-    return pdf.output(dest='S').encode('latin1')
-
-# PDF download link
-pdf_data = generate_pdf()
-b64 = base64.b64encode(pdf_data).decode()
-href = f'<a href="data:application/octet-stream;base64,{b64}" download="Project_Comparison_Report.pdf">\ud83d\udcc5 Download Full PDF Report</a>'
-st.markdown(href, unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("*Developed for MSSU Capital Budgeting Analysis*")
