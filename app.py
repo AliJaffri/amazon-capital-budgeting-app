@@ -2,6 +2,16 @@ import streamlit as st
 
 st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
 
+# 🟨 Add MSSU logo centered at the top
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="mssu_logo.png" width="150">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, NPV, and Profitability Index (PI).")
 
@@ -70,16 +80,16 @@ st.subheader("Net Present Value (NPV)")
 st.markdown("**Project A – PV of Cash Flows:**")
 for i, pv in enumerate(pv_flows_a):
     st.write(f"Year {i+1}: ${pv:,.2f}")
-st.write(f"Total PV of Inflows (A): ${pv_total_a:,.2f}")
-st.write(f"NPV = PV of Inflows - Initial Investment = ${pv_total_a:,.2f} - ${initial_investment:,.2f} = **${npv_a:,.2f}**")
+st.write(f"**Total PV of Inflows (A):** ${pv_total_a:,.2f}")
+st.write(f"**NPV = PV of Inflows - Initial Investment = ${pv_total_a:,.2f} - ${initial_investment:,.2f} = ${npv_a:,.2f}**")
 
 st.markdown("---")
 
 st.markdown("**Project B – PV of Cash Flows:**")
 for i, pv in enumerate(pv_flows_b):
     st.write(f"Year {i+1}: ${pv:,.2f}")
-st.write(f"Total PV of Inflows (B): ${pv_total_b:,.2f}")
-st.write(f"NPV = PV of Inflows - Initial Investment = ${pv_total_b:,.2f} - ${initial_investment:,.2f} = **${npv_b:,.2f}**")
+st.write(f"**Total PV of Inflows (B):** ${pv_total_b:,.2f}")
+st.write(f"**NPV = PV of Inflows - Initial Investment = ${pv_total_b:,.2f} - ${initial_investment:,.2f} = ${npv_b:,.2f}**")
 
 st.subheader("Profitability Index (PI)")
 st.write(f"**Project A**: {pi_a}")
@@ -97,28 +107,4 @@ else:
 if npv_a > npv_b:
     decision_reasons.append(f"**NPV**: Project A creates more value (${npv_a:,.2f} vs ${npv_b:,.2f}).")
 else:
-    decision_reasons.append(f"**NPV**: Project B creates more value (${npv_b:,.2f} vs ${npv_a:,.2f}).")
-
-if pi_a > pi_b:
-    decision_reasons.append("**PI**: Project A provides higher return per dollar invested.")
-else:
-    decision_reasons.append("**PI**: Project B provides higher return per dollar invested.")
-
-# Final recommendation
-if npv_a > 0 or npv_b > 0:
-    if npv_a > npv_b and npv_a > 0:
-        recommended = "Project A"
-    elif npv_b > npv_a and npv_b > 0:
-        recommended = "Project B"
-    else:
-        recommended = "Both projects are financially viable."
-
-    st.success(f"✅ Based on the analysis, **{recommended} is the better investment.**")
-else:
-    st.warning("⚠️ Both projects have zero or negative NPV. Reconsider investing.")
-
-for reason in decision_reasons:
-    st.markdown(f"- {reason}")
-
-st.markdown("---")
-st.markdown("*Developed for capital budgeting analysis*")
+    decision_reasons.append(f"**NPV**: Project B creates more value (${npv_b:,.
