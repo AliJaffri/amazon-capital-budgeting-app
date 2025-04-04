@@ -107,4 +107,28 @@ else:
 if npv_a > npv_b:
     decision_reasons.append(f"**NPV**: Project A creates more value (${npv_a:,.2f} vs ${npv_b:,.2f}).")
 else:
-    decision_reasons.append(f"**NPV**: Project B creates more value (${npv_b:,.
+    decision_reasons.append(f"**NPV**: Project B creates more value (${npv_b:,.2f} vs ${npv_a:,.2f}).")
+
+if pi_a > pi_b:
+    decision_reasons.append("**PI**: Project A provides higher return per dollar invested.")
+else:
+    decision_reasons.append("**PI**: Project B provides higher return per dollar invested.")
+
+# Final recommendation
+if npv_a > 0 or npv_b > 0:
+    if npv_a > npv_b and npv_a > 0:
+        recommended = "Project A"
+    elif npv_b > npv_a and npv_b > 0:
+        recommended = "Project B"
+    else:
+        recommended = "Both projects are financially viable."
+
+    st.success(f"✅ Based on the analysis, **{recommended} is the better investment.**")
+else:
+    st.warning("⚠️ Both projects have zero or negative NPV. Reconsider investing.")
+
+for reason in decision_reasons:
+    st.markdown(f"- {reason}")
+
+st.markdown("---")
+st.markdown("*Developed for capital budgeting analysis*")
