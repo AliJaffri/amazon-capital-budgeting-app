@@ -6,7 +6,7 @@ import base64
 st.set_page_config(page_title=" Capital Budgeting Techniques Projects Comparison Tool", layout="centered")
 st.image("mssu_logo.png", width=150)
 
-st.title("Project Comparison Tool")
+st.title("Capital Budgeting Techniques Projects Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
 
 # ------------------ INPUTS ------------------
