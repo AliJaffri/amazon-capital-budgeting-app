@@ -1,46 +1,33 @@
 import streamlit as st
+import matplotlib.pyplot as plt
+from fpdf import FPDF
+import base64
 
+# --- Streamlit Page Setup ---
 st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
-
-# 🟨 Add MSSU logo centered at the top
-st.markdown(
-    """
-    <div style="text-align: center;">
-        <img src="mssu_logo.png" width="150">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
+st.image("mssu_logo.png", width=150)  # Logo at top
 st.title("Project Comparison Tool")
-st.markdown("Compare two investment projects using Payback Period, NPV, and Profitability Index (PI).")
+st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
 
-# Initial inputs
+# --- User Inputs ---
 st.header("Project Setup")
-initial_investment = st.number_input("Initial Investment ($)", value=10000.0, step=500.0)
+initial_investment = st.number_input("Initial Investment ($)", value=10000.00, step=500.00)
 discount_rate = st.slider("Discount Rate (%)", min_value=1, max_value=20, value=10)
 rate = discount_rate / 100
-
 st.markdown(f"**Initial Investment:** ${initial_investment:,.2f}")
 
-# Input cash flows for Project A
+# Project A Inputs
 st.subheader("Project A: Enter Annual Cash Flows")
 years_a = st.number_input("Number of Years (Project A)", min_value=1, max_value=10, value=4)
-cash_flows_a = []
-for i in range(int(years_a)):
-    cash = st.number_input(f"Year {i+1} Cash Flow (Project A)", key=f"a{i}", value=3000.0)
-    cash_flows_a.append(cash)
+cash_flows_a = [st.number_input(f"Year {i+1} Cash Flow (Project A)", key=f"a{i}", value=3000.00) for i in range(int(years_a))]
 
-# Input cash flows for Project B
+# Project B Inputs
 st.subheader("Project B: Enter Annual Cash Flows")
 years_b = st.number_input("Number of Years (Project B)", min_value=1, max_value=10, value=4)
-cash_flows_b = []
-for i in range(int(years_b)):
-    default_b = [1000.0, 2000.0, 4000.0, 5000.0]
-    cash = st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=default_b[i] if i < 4 else 0.0)
-    cash_flows_b.append(cash)
+default_b = [1000.00, 2000.00, 4000.00, 5000.00]
+cash_flows_b = [st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=default_b[i] if i < 4 else 0.00) for i in range(int(years_b))]
 
-# Calculation functions
+# --- Helper Functions ---
 def payback_period(investment, flows):
     cum_sum = 0
     for i, cash in enumerate(flows):
@@ -54,13 +41,11 @@ def payback_period(investment, flows):
 def present_value_list(flows, rate):
     return [round(cf / (1 + rate) ** (i + 1), 2) for i, cf in enumerate(flows)]
 
-# Calculate PVs for both projects
+# --- Calculations ---
 pv_flows_a = present_value_list(cash_flows_a, rate)
 pv_flows_b = present_value_list(cash_flows_b, rate)
 pv_total_a = sum(pv_flows_a)
 pv_total_b = sum(pv_flows_b)
-
-# Calculate NPV, PI, Payback
 npv_a = round(pv_total_a - initial_investment, 2)
 npv_b = round(pv_total_b - initial_investment, 2)
 pi_a = round(pv_total_a / initial_investment, 3)
@@ -68,34 +53,33 @@ pi_b = round(pv_total_b / initial_investment, 3)
 payback_a = payback_period(initial_investment, cash_flows_a)
 payback_b = payback_period(initial_investment, cash_flows_b)
 
-# Display Results
+# --- Output Section ---
 st.header("Results")
 
 st.subheader("Payback Period")
-st.write(f"**Project A**: {payback_a} years")
-st.write(f"**Project B**: {payback_b} years")
+st.write(f"**Project A**: {payback_a:.2f} years")
+st.write(f"**Project B**: {payback_b:.2f} years")
 
 st.subheader("Net Present Value (NPV)")
-
-st.markdown("**Project A – PV of Cash Flows:**")
+st.markdown("**Project A – Present Value of Cash Flows:**")
 for i, pv in enumerate(pv_flows_a):
     st.write(f"Year {i+1}: ${pv:,.2f}")
 st.write(f"**Total PV of Inflows (A):** ${pv_total_a:,.2f}")
-st.write(f"**NPV = PV of Inflows - Initial Investment = ${pv_total_a:,.2f} - ${initial_investment:,.2f} = ${npv_a:,.2f}**")
+st.write(f"**NPV = ${pv_total_a:,.2f} - ${initial_investment:,.2f} = ${npv_a:,.2f}**")
 
 st.markdown("---")
 
-st.markdown("**Project B – PV of Cash Flows:**")
+st.markdown("**Project B – Present Value of Cash Flows:**")
 for i, pv in enumerate(pv_flows_b):
     st.write(f"Year {i+1}: ${pv:,.2f}")
 st.write(f"**Total PV of Inflows (B):** ${pv_total_b:,.2f}")
-st.write(f"**NPV = PV of Inflows - Initial Investment = ${pv_total_b:,.2f} - ${initial_investment:,.2f} = ${npv_b:,.2f}**")
+st.write(f"**NPV = ${pv_total_b:,.2f} - ${initial_investment:,.2f} = ${npv_b:,.2f}**")
 
 st.subheader("Profitability Index (PI)")
-st.write(f"**Project A**: {pi_a}")
-st.write(f"**Project B**: {pi_b}")
+st.write(f"**Project A**: {pi_a:.3f}")
+st.write(f"**Project B**: {pi_b:.3f}")
 
-# Recommendation Logic
+# --- Recommendation Logic ---
 st.subheader("Recommendation Summary")
 decision_reasons = []
 
@@ -114,7 +98,6 @@ if pi_a > pi_b:
 else:
     decision_reasons.append("**PI**: Project B provides higher return per dollar invested.")
 
-# Final recommendation
 if npv_a > 0 or npv_b > 0:
     if npv_a > npv_b and npv_a > 0:
         recommended = "Project A"
@@ -122,7 +105,6 @@ if npv_a > 0 or npv_b > 0:
         recommended = "Project B"
     else:
         recommended = "Both projects are financially viable."
-
     st.success(f"✅ Based on the analysis, **{recommended} is the better investment.**")
 else:
     st.warning("⚠️ Both projects have zero or negative NPV. Reconsider investing.")
@@ -130,5 +112,61 @@ else:
 for reason in decision_reasons:
     st.markdown(f"- {reason}")
 
+# --- Bar Chart Visualization ---
+st.subheader("Present Value Chart")
+fig, ax = plt.subplots()
+years = [f"Year {i+1}" for i in range(max(len(pv_flows_a), len(pv_flows_b)))]
+ax.bar(years, pv_flows_a, label='Project A', alpha=0.6)
+ax.bar(years, pv_flows_b, label='Project B', alpha=0.6)
+ax.set_ylabel("Present Value ($)")
+ax.set_title("Year-wise Present Value of Cash Flows")
+ax.legend()
+st.pyplot(fig)
+
+# --- PDF Report Generation ---
+def create_pdf():
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.cell(200, 10, txt="Capital Budgeting Project Comparison", ln=True, align='C')
+    pdf.ln(10)
+
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(200, 10, txt="Project A Cash Flows:", ln=True)
+    pdf.set_font("Arial", size=12)
+    for i, cash in enumerate(cash_flows_a):
+        pdf.cell(200, 10, txt=f"Year {i+1}: ${cash:,.2f}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", style="B", size=12)
+    pdf.cell(200, 10, txt="Project B Cash Flows:", ln=True)
+    pdf.set_font("Arial", size=12)
+    for i, cash in enumerate(cash_flows_b):
+        pdf.cell(200, 10, txt=f"Year {i+1}: ${cash:,.2f}", ln=True)
+
+    pdf.ln(10)
+    pdf.cell(200, 10, txt=f"NPV (A): ${npv_a:,.2f}", ln=True)
+    pdf.cell(200, 10, txt=f"NPV (B): ${npv_b:,.2f}", ln=True)
+    pdf.cell(200, 10, txt=f"PI (A): {pi_a:.3f}", ln=True)
+    pdf.cell(200, 10, txt=f"PI (B): {pi_b:.3f}", ln=True)
+    pdf.cell(200, 10, txt=f"Payback (A): {payback_a:.2f} years", ln=True)
+    pdf.cell(200, 10, txt=f"Payback (B): {payback_b:.2f} years", ln=True)
+
+    pdf.ln(10)
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(200, 10, txt=f"Recommended: {recommended}", ln=True)
+    pdf.set_font("Arial", size=12)
+    for reason in decision_reasons:
+        pdf.multi_cell(0, 10, txt=reason.replace("**", ""))
+
+    return pdf.output(dest='S').encode('latin1')
+
+st.markdown("### 📄 Download Report")
+pdf_data = create_pdf()
+b64 = base64.b64encode(pdf_data).decode()
+href = f'<a href="data:application/octet-stream;base64,{b64}" download="Project_Comparison_Report.pdf">📥 Click here to download the PDF report</a>'
+st.markdown(href, unsafe_allow_html=True)
+
 st.markdown("---")
-st.markdown("*Developed for capital budgeting analysis*")
+st.markdown("*Developed for MSSU Capital Budgeting Analysis*")
