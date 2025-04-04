@@ -26,7 +26,8 @@ st.subheader("Project B: Enter Annual Cash Flows")
 years_b = st.number_input("Number of Years (Project B)", min_value=1, max_value=10, value=4)
 cash_flows_b = []
 for i in range(int(years_b)):
-    cash = st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=[1000.0, 2000.0, 4000.0, 5000.0][i] if i < 4 else 0.0)
+    default_b = [1000.0, 2000.0, 4000.0, 5000.0]
+    cash = st.number_input(f"Year {i+1} Cash Flow (Project B)", key=f"b{i}", value=default_b[i] if i < 4 else 0.0)
     cash_flows_b.append(cash)
 
 # Calculation functions
@@ -40,26 +41,24 @@ def payback_period(investment, flows):
             return round(i + fraction, 2)
     return float('inf')
 
-def present_value(flows, rate):
-    return sum(cf / (1 + rate) ** (i + 1) for i, cf in enumerate(flows))
+def present_value_list(flows, rate):
+    return [round(cf / (1 + rate) ** (i + 1), 2) for i, cf in enumerate(flows)]
 
-def npv(investment, flows, rate):
-    pv_total = present_value(flows, rate)
-    return round(pv_total - investment, 2)
+# Calculate PVs for both projects
+pv_flows_a = present_value_list(cash_flows_a, rate)
+pv_flows_b = present_value_list(cash_flows_b, rate)
+pv_total_a = sum(pv_flows_a)
+pv_total_b = sum(pv_flows_b)
 
-def pi(investment, flows, rate):
-    pv_total = present_value(flows, rate)
-    return round(pv_total / investment, 3)
-
-# Perform calculations
+# Calculate NPV, PI, Payback
+npv_a = round(pv_total_a - initial_investment, 2)
+npv_b = round(pv_total_b - initial_investment, 2)
+pi_a = round(pv_total_a / initial_investment, 3)
+pi_b = round(pv_total_b / initial_investment, 3)
 payback_a = payback_period(initial_investment, cash_flows_a)
 payback_b = payback_period(initial_investment, cash_flows_b)
-npv_a = npv(initial_investment, cash_flows_a, rate)
-npv_b = npv(initial_investment, cash_flows_b, rate)
-pi_a = pi(initial_investment, cash_flows_a, rate)
-pi_b = pi(initial_investment, cash_flows_b, rate)
 
-# Results
+# Display Results
 st.header("Results")
 
 st.subheader("Payback Period")
@@ -67,14 +66,26 @@ st.write(f"**Project A**: {payback_a} years")
 st.write(f"**Project B**: {payback_b} years")
 
 st.subheader("Net Present Value (NPV)")
-st.write(f"**Project A**: ${npv_a:,.2f}")
-st.write(f"**Project B**: ${npv_b:,.2f}")
+
+st.markdown("**Project A – PV of Cash Flows:**")
+for i, pv in enumerate(pv_flows_a):
+    st.write(f"Year {i+1}: ${pv:,.2f}")
+st.write(f"Total PV of Inflows (A): ${pv_total_a:,.2f}")
+st.write(f"NPV = PV of Inflows - Initial Investment = ${pv_total_a:,.2f} - ${initial_investment:,.2f} = **${npv_a:,.2f}**")
+
+st.markdown("---")
+
+st.markdown("**Project B – PV of Cash Flows:**")
+for i, pv in enumerate(pv_flows_b):
+    st.write(f"Year {i+1}: ${pv:,.2f}")
+st.write(f"Total PV of Inflows (B): ${pv_total_b:,.2f}")
+st.write(f"NPV = PV of Inflows - Initial Investment = ${pv_total_b:,.2f} - ${initial_investment:,.2f} = **${npv_b:,.2f}**")
 
 st.subheader("Profitability Index (PI)")
 st.write(f"**Project A**: {pi_a}")
 st.write(f"**Project B**: {pi_b}")
 
-# Decision logic
+# Recommendation Logic
 st.subheader("Recommendation Summary")
 decision_reasons = []
 
