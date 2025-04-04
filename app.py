@@ -1,16 +1,10 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import base64
 
 # ------------------ CONFIG ------------------
-st.set_page_config(page_title="Projects Comparison Tool", layout="centered")
-st.markdown(
-    """
-    <div style='text-align: center;'>
-        <img src='mssu_logo.png' width='150'>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.set_page_config(page_title=" Capital Budgeting Techniques Projects Comparison Tool", layout="centered")
+st.image("mssu_logo.png", width=150)
 
 st.title("Project Comparison Tool")
 st.markdown("Compare two investment projects using Payback Period, Net Present Value (NPV), and Profitability Index (PI).")
